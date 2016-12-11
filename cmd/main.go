@@ -23,6 +23,7 @@ func main() {
 	glog.Fatal(http.ListenAndServe(*host+":"+*port, router))
 }
 
+// Route - struct for new endpoint
 type Route struct {
 	Name        string
 	Method      string
@@ -30,8 +31,10 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+// Routes - shortcut for slice of Route structs
 type Routes []Route
 
+// NewRouter - returns new Router with registered endpoints to handle incoming calls
 func NewRouter() *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -58,17 +61,5 @@ var routes = Routes{
 		"GET",
 		"/",
 		GoRepost.Greating,
-	},
-	Route{
-		"TasksList",
-		"GET",
-		"/tasks",
-		GoRepost.TasksList,
-	},
-	Route{
-		"TaskStatus",
-		"GET",
-		"/tasks/{taskId}",
-		GoRepost.TaskStatus,
 	},
 }

@@ -50,7 +50,6 @@ func vk(t *task.Task) {
 				glog.Error(a.Type + " not supported yet =(")
 			}
 		}
-		// strResp, err := api.Request("wall.post", params)
 		strResp, err := callAPI("wall.post", &params, &token)
 		if err != nil {
 			panic(err)

@@ -12,9 +12,9 @@ import (
 	"github.com/8tomat8/GoRepost/task"
 	"github.com/8tomat8/GoRepost/workers"
 	"github.com/golang/glog"
-	"github.com/gorilla/mux"
 )
 
+// TaskCreate - func to handle create request
 func TaskCreate(w http.ResponseWriter, r *http.Request) {
 	var task task.Task
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 2<<19))
@@ -37,18 +37,7 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 	go workers.Handler(&task)
 }
 
-func TaskStatus(w http.ResponseWriter, r *http.Request) {
-	// if err := json.NewEncoder(w).Encode(todos); err != nil {
-	// 	panic(err)
-	// }
-}
-
-func TasksList(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	taskID := vars["taskId"]
-	fmt.Fprintln(w, "Todo show:", taskID)
-}
-
+// Greating - func to that returns status of application
 func Greating(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "                  .....")
 	fmt.Fprintln(w, "                 C C  /")
