@@ -54,7 +54,7 @@ func Greating(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "                 C C  /")
 	fmt.Fprintln(w, "                /<   /     IT'S ALIVE!!!!!!11111")
 	fmt.Fprintln(w, " ___ __________/_#__=o     #####################")
-	fmt.Fprintln(w, "/(- /(\\_\\________   \\      The number of jobs: "+strconv.FormatUint(counter.GetCounter().Count, 10))
+	fmt.Fprintln(w, "/(- /(\\_\\________   \\      The number of jobs: "+strconv.FormatUint(counter.GetCounter().GetSize(), 10))
 	fmt.Fprintln(w, "\\ ) \\ )_      \\o     \\     #####################")
 	fmt.Fprintln(w, "/|\\ /|\\       |'     |       ")
 	fmt.Fprintln(w, "              |     _|       ")

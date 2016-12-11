@@ -28,3 +28,7 @@ func (c Counter) JobStarted() {
 func (c Counter) JobFinished() {
 	atomic.AddUint64(&c.Count, ^uint64(0))
 }
+
+func (c Counter) GetSize() uint64 {
+	return atomic.LoadUint64(&c.Count)
+}
