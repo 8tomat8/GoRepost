@@ -1,0 +1,7 @@
+[Unit]
+Description=GoRepost daemon
+After=networking.service
+ 
+[Service]
+Restart=on-failure
+ExecStart=/path/to/binnary/GoRepost-latest
