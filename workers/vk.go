@@ -55,7 +55,7 @@ func vk(t *task.Task) {
 			panic(err)
 		}
 		if strResp != "" {
-			glog.Info(strResp)
+			glog.Info("VK API response for " + g + ": " + strResp)
 		}
 	}
 }
