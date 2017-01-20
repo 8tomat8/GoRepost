@@ -18,8 +18,8 @@ or
     Starting HTTP server at http://127.0.0.222:8181
 Now you could open [http://127.0.0.222:8181](http://127.0.0.222:8181) to see application status.
 
-    HTTP status 422: `Could not unmarshal json / List of destinations are empty!`
-    HTTP status 200: `OK. The job is accepted for processing`
+    HTTP status 422: Could not unmarshal json / List of destinations are empty!
+    HTTP status 200: OK. The job is accepted for processing
 
 ### Make API call
 **Example:**
@@ -39,7 +39,7 @@ Now you could open [http://127.0.0.222:8181](http://127.0.0.222:8181) to see app
            }
          ]
        },
-       "message": "Blah blah blah `https://www.youtube.com/watch?v=dQw4w9WgXcQ` Sign",
+       "message": "Blah blah blah https://www.youtube.com/watch?v=dQw4w9WgXcQ Sign",
        "attachments": [
          {
            "type": "photo",
