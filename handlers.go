@@ -6,9 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
-	"github.com/8tomat8/GoRepost/counter"
 	"github.com/8tomat8/GoRepost/task"
 	"github.com/8tomat8/GoRepost/workers"
 	"github.com/golang/glog"
@@ -16,7 +14,7 @@ import (
 
 // TaskCreate - func to handle create request
 func TaskCreate(w http.ResponseWriter, r *http.Request) {
-	var task task.Task
+	task := task.NewTask()
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 2<<19))
 	if err != nil {
 		panic(err)
@@ -24,26 +22,41 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &task); err != nil {
+	if err := json.Unmarshal(body, task); err != nil {
 		glog.Error(err)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422) // unprocessable entity
+		w.WriteHeader(http.StatusUnprocessableEntity) // unprocessable entity
 		if err := json.NewEncoder(w).Encode(err); err != nil {
 			glog.Error(err)
 		}
 		return
 	}
-	glog.Info(body)
-	go workers.Handler(&task)
+
+	if len(task.Destinations) == 0 {
+		glog.Error("List of destinations are empty!")
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		return
+	}
+
+	for _, v := range task.Destinations {
+		if len(*v) == 0 {
+			glog.Error("List of destinations could not be empty!")
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			return
+		}
+	}
+
+	glog.Info(string(body))
+	go workers.Handler(task)
 }
 
 // Greating - func to that returns status of application
-func Greating(w http.ResponseWriter, r *http.Request) {
+func Greating(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprintln(w, "                  .....")
 	fmt.Fprintln(w, "                 C C  /")
 	fmt.Fprintln(w, "                /<   /     IT'S ALIVE!!!!!!11111")
 	fmt.Fprintln(w, " ___ __________/_#__=o     #####################")
-	fmt.Fprintln(w, "/(- /(\\_\\________   \\      The number of jobs: "+strconv.FormatUint(counter.GetCounter().GetSize(), 10))
+	fmt.Fprintln(w, "/(- /(\\_\\________   \\      Processing tasks: Does not work =(") /*strconv.FormatUint(counter.GetCounter().GetSize(), 10))*/
 	fmt.Fprintln(w, "\\ ) \\ )_      \\o     \\     #####################")
 	fmt.Fprintln(w, "/|\\ /|\\       |'     |       ")
 	fmt.Fprintln(w, "              |     _|       ")

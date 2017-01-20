@@ -2,7 +2,7 @@ package task
 
 // Task - main struct from incoming message
 type Task struct {
-	Destinations []*Destination `json:"destinations"`
+	Destinations map[string]*Groups `json:"destinations"`
 	Message      string         `json:"message"`
 	Attachments  []*Attachment  `json:"attachments"`
 }
@@ -16,8 +16,17 @@ type Attachment struct {
 	Link string `json:"link"`
 }
 
-// Destination - struct to specify socials and groups in them
-type Destination struct {
-	Social   string   `json:"social"`
-	GroupIDs []string `json:"group_ids"`
+type Group struct {
+	Id        string `json:"id"`
+	AccessKey string `json:"access_key"`
+	FromGroup bool `json:"from_group"`
+}
+
+type Groups []*Group
+
+func NewTask() *Task {
+	return &Task{
+		Destinations:make(map[string]*Groups),
+		Attachments:make([]*Attachment, 10),
+	}
 }

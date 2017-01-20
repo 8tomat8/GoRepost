@@ -17,56 +17,58 @@ import (
 
 // Handler for Task
 func vk(t *task.Task) {
-	var groupIDs []string
-	raw, err := ioutil.ReadFile("./config.json")
-	configs := gjson.Get(string(raw), "vk").Map()
-	if err != nil {
-		panic("Can't read config file!!! Всё в говне!")
-	}
+	groups, _ := t.Destinations["vk"]
 
-	for _, d := range t.Destinations {
-		if d.Social == "vk" {
-			groupIDs = d.GroupIDs
-		}
-	}
 	params := make(map[string]string)
 	params["attachments"] = ""
-	params["from_group"] = "1"
 	params["message"] = t.Message
 
-	for _, g := range groupIDs {
-		token := configs[g].String()
-		params["owner_id"] = "-" + g
+	for _, g := range *groups {
+		if len(g.AccessKey) != 85 { // 85 - Size of Vk standard Access key
+			glog.Error(g.Id + "s access_key not valid! Skipping group.")
+			continue
+		}
+
+		if g.FromGroup {
+			params["from_group"] = "1"
+		} else {
+			params["from_group"] = "0"
+		}
+		params["owner_id"] = "-" + g.Id
 		for _, a := range t.Attachments {
 			switch a.Type {
 			case "photo":
-				photo, err := photoLoader(a, g, &token)
+				photo, err := photoLoader(a, g)
 				if err != nil {
 					glog.Error(err)
 				} else {
-					addToAttachments(&params, photo)
+					addToAttachments(params, photo)
+				}
+			case "link":
+				if len(a.Link) != 0 {
+					addToAttachments(params, a.Link)
 				}
 			default:
 				glog.Error(a.Type + " not supported yet =(")
 			}
 		}
-		strResp, err := callAPI("wall.post", &params, &token)
+		strResp, err := callAPI("wall.post", params, &g.AccessKey)
 		if err != nil {
 			panic(err)
 		}
 		if strResp != "" {
-			glog.Info("VK API response for " + g + ": " + strResp)
+			glog.Info("VK API response for " + g.Id + ": " + strResp)
 		}
 	}
 }
 
-func callAPI(method string, params *map[string]string, token *string) (string, error) {
+func callAPI(method string, params map[string]string, token *string) (string, error) {
 	u, err := url.Parse("https://api.vk.com/method/" + method)
 	if err != nil {
 		return "", err
 	}
 	q := u.Query()
-	for k, v := range *params {
+	for k, v := range params {
 		q.Set(k, v)
 	}
 	q.Set("access_token", *token)
@@ -82,13 +84,13 @@ func callAPI(method string, params *map[string]string, token *string) (string, e
 	return result, nil
 }
 
-func photoLoader(a *task.Attachment, g string, t *string) (string, error) {
+func photoLoader(a *task.Attachment, g *task.Group) (string, error) {
 	params := make(map[string]string)
-	params["group_id"] = g
+	params["group_id"] = g.Id
 
 	var b bytes.Buffer
 
-	jsonResp, err := callAPI("photos.getWallUploadServer", &params, t)
+	jsonResp, err := callAPI("photos.getWallUploadServer", params, &g.AccessKey)
 	if err != nil {
 		return "", errors.New("Failed to load" + a.Type + " " + a.Link)
 	}
@@ -131,15 +133,14 @@ func photoLoader(a *task.Attachment, g string, t *string) (string, error) {
 	params["server"] = gjson.Get(strResp, "server").String()
 	params["hash"] = gjson.Get(strResp, "hash").String()
 
-	jsonResp, err = callAPI("photos.saveWallPhoto", &params, t)
+	jsonResp, err = callAPI("photos.saveWallPhoto", params, &g.AccessKey)
 	if err != nil {
 		return "", errors.New("Can't get response from VK on saving " + a.Link)
 	}
 	return gjson.Get(jsonResp, "response.#.id").Array()[0].String(), nil
 }
 
-func addToAttachments(p *map[string]string, newElement string) {
-	params := *p
+func addToAttachments(params map[string]string, newElement string) {
 	if len([]rune(params["attachments"])) != 0 {
 		params["attachments"] = params["attachments"] + ","
 	}
