@@ -60,6 +60,6 @@ var routes = Routes{
 		"Create",
 		"GET",
 		"/",
-		GoRepost.Greating,
+		GoRepost.Greeting,
 	},
 }

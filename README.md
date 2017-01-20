@@ -35,7 +35,7 @@ Now you could open [http://127.0.0.222:8181](http://127.0.0.222:8181) to see app
            {
              "id": "1234567890",
              "access_key": "9ccd58639b306d26ccfc59d4919e036864a17a0fe98dcd6aa1b7d184eb776b4b5a1af6a289a83f025a7d4",
-             "from_group": true  // true - post from groups name, false - post fron users name
+             "from_group": false  // true - post from groups name, false - post fron users name
            }
          ]
        },

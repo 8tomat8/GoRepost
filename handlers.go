@@ -50,8 +50,8 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 	go workers.Handler(task)
 }
 
-// Greating - func to that returns status of application
-func Greating(w http.ResponseWriter, _ *http.Request) {
+// Greeting - func to that returns status of application
+func Greeting(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprintln(w, "                  .....")
 	fmt.Fprintln(w, "                 C C  /")
 	fmt.Fprintln(w, "                /<   /     IT'S ALIVE!!!!!!11111")
