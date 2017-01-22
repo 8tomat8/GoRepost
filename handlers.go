@@ -10,7 +10,11 @@ import (
 	"github.com/8tomat8/GoRepost/task"
 	"github.com/8tomat8/GoRepost/workers"
 	"github.com/golang/glog"
+	"github.com/gorilla/mux"
+	"github.com/8tomat8/GoRepost/logging"
 )
+
+const resultsPath = "./results/"
 
 // TaskCreate - func to handle create request
 func TaskCreate(w http.ResponseWriter, r *http.Request) {
@@ -48,6 +52,24 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 
 	glog.Info(string(body))
 	go workers.Handler(task)
+}
+
+func TaskState(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	file, err := logging.GetLog(&id)
+	if err != nil {
+		glog.Error(err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	_,err = io.Copy(w, file)
+	if err != nil {
+		glog.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+
 }
 
 // Greeting - func to that returns status of application

@@ -26,6 +26,7 @@ func vk(t *task.Task) {
 	for _, g := range *groups {
 		if len(g.AccessKey) != 85 { // 85 - Size of Vk standard Access key
 			glog.Error(g.Id + "s access_key not valid! Skipping group.")
+			g.Status += g.Id + "s access_key not valid! Skipping group.\n"
 			continue
 		}
 
@@ -41,6 +42,7 @@ func vk(t *task.Task) {
 				photo, err := photoLoader(a, g)
 				if err != nil {
 					glog.Error(err)
+					g.Status += err.Error() + "\n"
 				} else {
 					addToAttachments(params, photo)
 				}
@@ -52,20 +54,26 @@ func vk(t *task.Task) {
 				glog.Error(a.Type + " not supported yet =(")
 			}
 		}
-		strResp, err := callAPI("wall.post", params, &g.AccessKey)
+		strResp, code, err := callAPI("wall.post", params, &g.AccessKey)
 		if err != nil {
-			panic(err)
+			glog.Error(err)
+			g.Status += err.Error() + "\n"
 		}
-		if strResp != "" {
+		if strResp != ""{
 			glog.Info("VK API response for " + g.Id + ": " + strResp)
+		}
+		if code != 200 {
+			g.Status += strResp
+		} else {
+			g.Status += "Done"
 		}
 	}
 }
 
-func callAPI(method string, params map[string]string, token *string) (string, error) {
+func callAPI(method string, params map[string]string, token *string) (string, int, error) {
 	u, err := url.Parse("https://api.vk.com/method/" + method)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	q := u.Query()
 	for k, v := range params {
@@ -76,12 +84,12 @@ func callAPI(method string, params map[string]string, token *string) (string, er
 
 	resp, err := http.Get(u.String())
 	if err != nil {
-		return "", err
+		return "", resp.StatusCode, err
 	}
 	defer resp.Body.Close()
 	data, err := ioutil.ReadAll(resp.Body)
 	result := string(data)
-	return result, nil
+	return result, resp.StatusCode, nil
 }
 
 func photoLoader(a *task.Attachment, g *task.Group) (string, error) {
@@ -90,7 +98,7 @@ func photoLoader(a *task.Attachment, g *task.Group) (string, error) {
 
 	var b bytes.Buffer
 
-	jsonResp, err := callAPI("photos.getWallUploadServer", params, &g.AccessKey)
+	jsonResp, _, err := callAPI("photos.getWallUploadServer", params, &g.AccessKey)
 	if err != nil {
 		return "", errors.New("Failed to load" + a.Type + " " + a.Link)
 	}
@@ -98,6 +106,9 @@ func photoLoader(a *task.Attachment, g *task.Group) (string, error) {
 	uploadURL := gjson.Get(jsonResp, "response.upload_url")
 
 	resp, err := http.Get(a.Link)
+	if err != nil {
+		return "", err
+	}
 	defer resp.Body.Close()
 
 	w := multipart.NewWriter(&b)
@@ -133,7 +144,7 @@ func photoLoader(a *task.Attachment, g *task.Group) (string, error) {
 	params["server"] = gjson.Get(strResp, "server").String()
 	params["hash"] = gjson.Get(strResp, "hash").String()
 
-	jsonResp, err = callAPI("photos.saveWallPhoto", params, &g.AccessKey)
+	jsonResp, _, err = callAPI("photos.saveWallPhoto", params, &g.AccessKey)
 	if err != nil {
 		return "", errors.New("Can't get response from VK on saving " + a.Link)
 	}

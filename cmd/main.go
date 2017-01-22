@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net/http"
 
 	"github.com/8tomat8/GoRepost"
@@ -15,11 +14,11 @@ func main() {
 	var port = flag.String("port", "8181", "Port.")
 	flag.Parse()
 
-	fmt.Println("Creating router...")
+	glog.Info("Creating router...")
 	router := NewRouter()
-	fmt.Println("Router created.")
+	glog.Info("Router created.")
 
-	fmt.Println("Starting HTTP server at http://" + *host + ":" + *port)
+	glog.Info("Starting HTTP server at http://" + *host + ":" + *port)
 	glog.Fatal(http.ListenAndServe(*host+":"+*port, router))
 }
 
@@ -40,7 +39,7 @@ func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routes {
 		router.
-			Methods(route.Method).
+		Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(route.HandlerFunc)
@@ -55,6 +54,12 @@ var routes = Routes{
 		"POST",
 		"/tasks",
 		GoRepost.TaskCreate,
+	},
+	Route{
+		"Create",
+		"GET",
+		"/tasks/{id}",
+		GoRepost.TaskState,
 	},
 	Route{
 		"Create",
