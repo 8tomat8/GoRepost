@@ -72,13 +72,13 @@ If call_back_url was specified in request, application will use it to make HTTP 
              "id": "1234567890",
              "access_key": "9ccd58639b306d26ccfc59d4919e036864a17a0fe98dcd6aa1b7d184eb776b4b5a1af6a289a83f025a7d4",
              "from_group": true  // true - post from groups name, false - post from users name,
-             **"status": "Done"** // All was proccessed successfully
+             "status": "Done" // All was proccessed successfully
            },
            {
              "id": "1234567890",
              "access_key": "9ccd58639b306d26ccfc59d4919e036864a17a0fe98dcd6aa1b7d184eb776b4b5a1af6a289a83f025a7d4",
              "from_group": false  // true - post from groups name, false - post from users name,
-             **"status": "Text of error"** // Somthing goes wrong. If app could not load photo(s), it will make post anyway. In this case you will see "Done" in the end of this string
+             "status": "Text of error" // Somthing goes wrong. If app could not load photo(s), it will make post anyway. In this case you will see "Done" in the end of this string
            }
          ]
        },
