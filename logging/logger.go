@@ -55,7 +55,7 @@ func WriteLog(t *task.Task) (err error) {
 			glog.Error(err)
 		}
 	}
-
+	
 	return
 }
 

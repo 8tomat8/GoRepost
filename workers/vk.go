@@ -20,10 +20,11 @@ func vk(t *task.Task) {
 	groups, _ := t.Destinations["vk"]
 
 	params := make(map[string]string)
-	params["attachments"] = ""
 	params["message"] = t.Message
 
 	for _, g := range *groups {
+		params["attachments"] = ""
+
 		if len(g.AccessKey) != 85 { // 85 - Size of Vk standard Access key
 			glog.Error(g.Id + "s access_key not valid! Skipping group.")
 			g.Status += g.Id + "s access_key not valid! Skipping group.\n"
@@ -59,7 +60,7 @@ func vk(t *task.Task) {
 			glog.Error(err)
 			g.Status += err.Error() + "\n"
 		}
-		if strResp != ""{
+		if strResp != "" {
 			glog.Info("VK API response for " + g.Id + ": " + strResp)
 		}
 		if code != 200 {
